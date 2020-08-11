@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min.js" type="text/JavaScript"></script>
+    <title>D3 Final Project</title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css"/>
+  </head>
+  <body>
+
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="pieChart.html">PieChart</a></li>
+        <li><a href="circleDiagram.html">CircleDiagram</a></li>
+        <li><a href="worldMap.html">GlobeGraph</a></li>
+        <li><a href="usa.html">CurveGraph</a></li>
+        <li><a href="transmissionLifecycle.html">TransmissionLifeCycle</a></li>
+        <li><a href="coronavirusFamily.html">CoronavirusFamily</a></li>
+        <li><a href="lollipopDiagram.html">LollipopDiagram</a></li>
+        <li><a href="circularBarplot.html">CircularBarplot</a></li>
+    </ul>
+
+    <div>
+        <h3>Data Source : <a href="http://www.emro.who.int/health-topics/corona-virus/questions-and-answers.html">WHO health topics</a></h3>
+        <h3>Data as per 2020 April 17</h3>
+        <h1>Understanding various strains of Coronavirus family</h1>
+        <h4>Double click and/or drag to pan and zoom around the graph</h4>
+    </div>  
+
+    <div id="myDiv">
+      <svg style="width:1500px;height:2000px;" ></svg>
+    </div>
+    <script>
+
+
+       d3.json("./data/coronavirusFamily.json", viz);
+
+       function viz(data){
+         
+        // defining color scale
+        var depthScale = d3.scaleOrdinal()
+                            .range(["green","blue","red","yellow"]);
+
+        // nesting data //also d3.stratify()
+        var nestedAncestory = d3.nest()
+                             .key(d=>d.parent)
+                             .entries(data.gandhi)
+                             
+                             ; // nested data as array
+
+        console.log("nestedAncestory");
+        console.log(nestedAncestory);                     
+
+        // converting array to object
+        var packableAncestory = {id:"CoronaVirusFamilyTree", values: nestedAncestory};   
+        console.log("packableAncestory");
+        console.log(packableAncestory);  
+
+         //layout creation and sizing
+        var treeChart = d3.tree(); // only provides the layout
+        treeChart.size([500,450]);    
+
+        
+        //passing the object to the created layout
+        var root = d3.hierarchy(packableAncestory, d=> d.values)
+                     .sum(()=>1);
+                     //.sum(d=>d.retweets?d.retweets.length + d.favorites.length+1: undefined);
+
+
+
+       
+        console.log("root");
+        console.log(root);     
+
+        var treeData = treeChart(root).descendants();
+        
+        d3.select("svg")
+          .append("g")   
+          .attr("id","treeG")
+          .attr("transform","translate(100,20)")  
+          .selectAll("g")  
+          .data(treeData)   
+          .enter()
+          .append("g")
+          .attr("class","node")
+          .attr("transform",d=>`translate(${d.y},${d.x})`)
+          ;
+
+
+          d3.selectAll("g.node")
+         .append("circle")
+         .attr("r",25)
+         .style("fill",d=>depthScale(d.depth))
+          .style("stroke","white")
+          .style("stroke-width","2px")
+           ;       
+           
+           d3.select("#treeG").selectAll("line")
+           .data(treeData.filter(d=>d.parent))
+           .enter().insert("line","g")
+           .attr("x1",d=>d.parent.y)
+           .attr("y1",d=>d.parent.x)
+           .attr("x2",d=>d.y)
+           .attr("y2",d=>d.x)
+           .style("stroke","black");
+        
+         
+           d3.selectAll("g.node")
+           .append("text")
+           .style("text-anchor","middle")
+           .style("fill", "black")
+           .text(d=>d.data.id || d.data.key || d.data.name);
+
+           var treeZoom = d3.zoom()
+           .on("zoom",zoomed);
+
+
+           d3.select('svg').call(treeZoom);
+
+
+          function zoomed() {
+          console.log(d3.event);
+          d3.select('#treeG').attr("transform",
+            `translate(${d3.event.transform.x},${d3.event.transform.y})`);
+        }
+           
+
+
+       }
+        
+        
+    </script>
+  </body>
+</html>

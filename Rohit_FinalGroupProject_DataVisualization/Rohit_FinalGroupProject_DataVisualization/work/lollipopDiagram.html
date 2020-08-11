@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+  <title>D3 Final Project</title>
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <link rel="stylesheet" type="text/css" href="main.css"/>        
+</head>
+
+<body>
+
+  <ul>
+    <li><a href="home.html">Home</a></li>
+    <li><a href="pieChart.html">PieChart</a></li>
+    <li><a href="circleDiagram.html">CircleDiagram</a></li>
+    <li><a href="worldMap.html">GlobeGraph</a></li>
+    <li><a href="usa.html">CurveGraph</a></li>
+    <li><a href="transmissionLifecycle.html">TransmissionLifeCycle</a></li>
+    <li><a href="coronavirusFamily.html">CoronavirusFamily</a></li>
+    <li><a href="lollipopDiagram.html">LollipopDiagram</a></li>
+    <li><a href="circularBarplot.html">CircularBarplot</a></li>
+
+    </ul>
+    <div>
+      <h3>Data Source : <a href="https://www.worldometers.info/coronavirus/">worldometers</a></h3>
+      <h3>Data as per 2020 April 17</h3>
+      <h1>A comparitive analysis of COVID 19 scenario in India and Canada</h1>
+      <h2>India's population density is 116 times more than that of Canada, but yet total COVID19 deaths in India is 104 times less than that in Canada</h2>
+    </div> 
+
+  <div style="align-items: center;">
+    <button onclick="update('india')">Canada</button>
+    <button onclick="update('canada')">India</button>
+  </div>
+  
+  <div id="display"></div>
+
+  <script>
+
+
+var margin = {top: 20, right: 20, bottom: 50, left: 50},
+    width = 600 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+
+var svg = d3.select("#display")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+var x = d3.scaleBand()
+  .range([ 0, width ])
+  .padding(2);
+var xAxis = svg.append("g")
+  .attr("transform", "translate(0," + height + ")")
+
+
+var y = d3.scaleLinear()
+  .range([ height, 0]);
+var yAxis = svg.append("g")
+  .attr("class", "myYaxis")
+
+
+
+function update(countryChoosen) {
+  
+  d3.csv("./data/lollipop.csv", function(data) {
+
+    
+    x.domain(data.map(function(d) { return d.group; }))
+    xAxis.transition().duration(500).call(d3.axisBottom(x))
+
+    
+    y.domain([0, d3.max(data, function(d) { return +d[countryChoosen] }) ]);
+    yAxis.transition().duration(500).call(d3.axisLeft(y));
+
+    
+    var myvar1 = svg.selectAll(".myLine")
+      .data(data)
+    
+    myvar1
+      .enter()
+      .append("line")
+      .attr("class", "myLine")
+      .merge(myvar1)
+      .transition()
+      .duration(500)
+        .attr("x1", function(d) { console.log(x(d.group)) ; return x(d.group); })
+        .attr("x2", function(d) { return x(d.group); })
+        .attr("y1", y(0))
+        .attr("y2", function(d) { return y(d[countryChoosen]); })
+        .attr("stroke", "grey")
+
+
+    
+    var myvar2 = svg.selectAll("circle")
+      .data(data)
+    
+    myvar2
+      .enter()
+      .append("circle")
+      .merge(myvar2)
+      .transition()
+      .duration(500)
+        .attr("cx", function(d) { return x(d.group); })
+        .attr("cy", function(d) { return y(d[countryChoosen]); })
+        .attr("r", 8)
+        .attr("fill", "blue");
+
+  //document.getElementById("display").innerHTML = countryChoosen;
+  })
+
+}
+
+update('india')
+
+
+</script>
+
+
+<div style="align-items: center;"><h4>Population Density : People per km square</h4></div>
+
+<div id="display"></div>
+
+</body>
+
+
+
+

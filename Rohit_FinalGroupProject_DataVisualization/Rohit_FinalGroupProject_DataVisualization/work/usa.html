@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 Final Project</title>
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+
+<ul>
+  <li><a href="home.html">Home</a></li>
+        <li><a href="pieChart.html">PieChart</a></li>
+        <li><a href="circleDiagram.html">CircleDiagram</a></li>
+        <li><a href="worldMap.html">GlobeGraph</a></li>
+        <li><a href="usa.html">CurveGraph</a></li>
+        <li><a href="transmissionLifecycle.html">TransmissionLifeCycle</a></li>
+        <li><a href="coronavirusFamily.html">CoronavirusFamily</a></li>
+        <li><a href="lollipopDiagram.html">LollipopDiagram</a></li>
+        <li><a href="circularBarplot.html">CircularBarplot</a></li>
+</ul>
+
+        <div>
+          <h3>Data Source : <a href="https://www.worldometers.info/coronavirus/">worldometers</a></h3>
+          <h3>Data as per 2020 April 17</h3>
+          <h1>Positive cases growth rate in the USA</h1>
+      </div>    
+    
+    <div id="my_dataviz"></div>
+    
+    <script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 700 - margin.left - margin.right,
+    height = 700 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+//d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/3_TwoNumOrdered_comma.csv",
+d3.csv("./data/usa.csv",
+
+  // When reading the csv, I must format variables:
+  function(d){
+    return { date : d3.timeParse("%Y-%m-%d")(d.date), cases : d.cases }
+  },
+
+  // Now I can use this dataset:
+  function(data) {
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleTime()
+      .domain(d3.extent(data, function(d) { return d.date; }))
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return +d.cases; })])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.date) })
+        .y(function(d) { return y(d.cases) })
+        )
+
+})
+
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>D3 Final Project</title>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="main.css" />
+    </head>  
+
+    <body>
+
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="pieChart.html">PieChart</a></li>
+        <li><a href="circleDiagram.html">CircleDiagram</a></li>
+        <li><a href="worldMap.html">GlobeGraph</a></li>
+        <li><a href="usa.html">CurveGraph</a></li>
+        <li><a href="transmissionLifecycle.html">TransmissionLifeCycle</a></li>
+        <li><a href="coronavirusFamily.html">CoronavirusFamily</a></li>
+        <li><a href="lollipopDiagram.html">LollipopDiagram</a></li>
+        <li><a href="circularBarplot.html">CircularBarplot</a></li>
+    </ul>
+      <div>
+          <h3>Data Source : <a href="https://www.worldometers.info/coronavirus/">worldometers</a></h3>
+          <h3>Data as per 2020 April 17</h3>
+          <h1>Comparing deaths in various countries due to COVID19</h1>
+          <h4>Click any circle to see further details</h4>
+      </div>  
+
+    <script>
+
+        
+        var canvas = d3.select("body")
+                    .append("svg")
+                    .attr("width",1500)
+                    .attr("height",800)      
+                    .append("g")
+                    .attr("transform","translate(100,100)")
+                    ;
+
+        
+                    d3.csv("./data/circleDiagram.csv",function(data){
+
+dataViz(data);
+
+});
+
+   
+
+function dataViz(data){
+ //console.log(data);
+ 
+ var initialArray = d3.values(data);
+    var posArray=[];
+    var nameArray=[];
+    var valueArray=[];
+    var maxValue;
+    var minValue;
+    var a=0;
+    var b=0;  
+    var c=0;
+
+   
+    for(var i=0;i<initialArray.length;i++)
+     {
+
+         var subArray = Object.values(initialArray[i]);
+
+         
+         for(var j=0;j<subArray.length;j++)
+         {
+             
+             if(j==0)
+             {
+               posArray[a] = subArray[j];
+               a++;   
+             }
+
+             if(j==1)
+             {
+               nameArray[b] = subArray[j];
+               b++; 
+             }
+
+             if(j==2)
+             {
+               valueArray[c] = subArray[j];
+               c++; 
+             }
+         }
+         
+     }
+
+     console.log("hiiiii"+nameArray);
+     var cArray = nameArray;
+     
+
+     for(var i=0;i<valueArray.length;i++)
+                  {
+                    valueArray[i] = Math.round(valueArray[i] / 5000);
+                  }
+        console.log(valueArray);
+       var maxminValue = d3.extent(valueArray);
+         console.log(d3.extent(valueArray));
+
+        maxValue = maxminValue[0];
+        minValue = maxminValue[1];
+        console.log(maxValue,minValue+1);
+
+        var colorScale = d3.scale.linear()
+                                .domain([minValue,maxValue])
+                                .range(["green","blue"]);
+
+        /* var radiusScale = d3.scale.linear()
+                                   .domain(minValue,maxValue)    
+                                   .range(4,10);      */    
+                                   
+        var clickFunction = function(d,i)
+        {
+        
+          
+          alert("Countries are ranked from 1 to 9, with rank 1 allocated to country with most deaths and rank 9 allocated to country with least deaths\n\n\n"+"Country Name : "+nameArray[i]+"\nRank in death count: "+posArray[i]);
+
+
+        }                           
+                              
+
+        var selectAllCircles = canvas.selectAll("circle")
+                                                .data(valueArray)
+                                                .enter()
+                                                    .append("circle")
+                                                    
+                                                    .attr("cx",function(d,i){return (138*i)})
+                                                    .attr("cy",40)
+                                                    .attr("r",function(d){ return d*5; })
+                                                    // .attr("r",function(d){ return radiusScale(d); })
+                                                    .attr("fill",function(d){ return colorScale(d);})
+                                                    .on("click", function(d,i){ return clickFunction(d,i)})
+                                                    ;
+
+          
+        var labels = canvas.selectAll("text")
+                      .data(nameArray)    
+                      .enter()
+                     .append("text")   
+                     .attr("fill","black")
+                     .attr("x",function(d,i){return 138*i;})
+                     .attr("y",10)
+                      .text(function(d){return d;}) 
+                ;                                           
+
+
+        
+
+    }            
+
+    
+    
+
+
+
+        
+       
+                    
+        
+                     
+        
+    </script>
+
+    </body>
+</html>

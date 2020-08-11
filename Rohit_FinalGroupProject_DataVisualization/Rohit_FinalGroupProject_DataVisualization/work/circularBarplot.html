@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <title>D3 Final Project</title>
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3-scale-radial.js"></script>
+  <link rel="stylesheet" type="text/css" href="main.css" />
+</head> 
+
+<body>
+
+  <ul>
+    <li><a href="home.html">Home</a></li>
+    <li><a href="pieChart.html">PieChart</a></li>
+    <li><a href="circleDiagram.html">CircleDiagram</a></li>
+    <li><a href="worldMap.html">GlobeGraph</a></li>
+    <li><a href="usa.html">CurveGraph</a></li>
+    <li><a href="transmissionLifecycle.html">TransmissionLifeCycle</a></li>
+    <li><a href="coronavirusFamily.html">CoronavirusFamily</a></li>
+    <li><a href="lollipopDiagram.html">LollipopDiagram</a></li>
+    <li><a href="circularBarplot.html">CircularBarplot</a></li>
+ </ul>
+
+  <div>
+      <h3>Data Source : <a href="https://www.worldometers.info/coronavirus/">worldometers</a></h3>
+      <h3>Data as per 2020 April 17</h3>
+      <h1>Testing of COVID19 done per 1 M population</h1>
+      
+  </div>  
+  <div id="display"></div>
+  <script>
+   
+    var margin = {top: 80, right: 0, bottom: 0, left: 0},
+        width = 660 - margin.left - margin.right,
+        height = 460 - margin.top - margin.bottom,
+        innerRadius = 90,
+        outerRadius = Math.min(width, height) / 2;   
+    
+
+    var svg = d3.select("#display")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top) + ")");
+    
+    
+    
+    d3.csv("./data/circularBarplot.csv", function(data) {
+      
+      var x = d3.scaleBand()
+          .range([0, 2 * Math.PI])    
+          .align(0)                  
+          .domain(data.map(function(d) { return d.Country; })); 
+      var y = d3.scaleRadial()
+          .range([innerRadius, outerRadius])   
+          .domain([0, 15000]); 
+    
+      
+      svg.append("g")
+        .selectAll("path")
+        .data(data)
+        .enter()
+        .append("path")
+          .attr("fill", "blue")
+          .attr("d", d3.arc()     
+              .innerRadius(innerRadius)
+              .outerRadius(function(d) { return y(d['Value']); })
+              .startAngle(function(d) { return x(d.Country); })
+              .endAngle(function(d) { return x(d.Country) + x.bandwidth(); })
+              .padAngle(0.02)
+              .padRadius(innerRadius))
+    
+    
+      svg.append("g")
+          .selectAll("g")
+          .data(data)
+          .enter()
+          .append("g")
+            .attr("text-anchor", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
+            .attr("transform", function(d) { return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d['Value'])+10) + ",0)"; })
+          .append("text")
+            .text(function(d){return(d.Country)})
+            .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
+            .style("font-size", "15px")
+            .attr("alignment-baseline", "middle")
+    
+    });
+    
+    </script>
+
+<div style="align-items: center;">
+  <br><br><h2>Some insights</h2>
+</div>
+
+<div>
+  <p>(1)African countries have very low levels of testing</p>
+  <p>(2)India's level of testing is much lower as compared to US and Europe</p>
+  <p>(3)Canada,Us and most European countries have high levels of testing</p>
+  <p>(4)European countries like Italy,Spain have higher levels of testing than the US</p>
+</div>
+
+</body>
+
+
+
+
+
+
+

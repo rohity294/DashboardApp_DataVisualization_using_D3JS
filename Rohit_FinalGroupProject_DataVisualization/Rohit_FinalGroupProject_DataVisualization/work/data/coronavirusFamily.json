@@ -1,0 +1,12 @@
+{
+    "gandhi": [
+    {"parent": "CommonStrain", "name": "CommonCold"},
+    {"parent": "CommonStrain", "name": "SeasonalFlu"},
+    {"parent": "SevereStrain", "name": "Middle East Respiratory Syndrome (MERS)"},
+    {"parent": "SevereStrain", "name": "Severe Acute Respiratory Syndrome (SARS)"},
+    {"parent": "NovelStrain", "name": "COVID 19"}
+    ]
+    }
+
+
+    

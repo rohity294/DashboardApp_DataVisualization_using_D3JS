@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>D3 Tutorial</title>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="main.css"/>
+
+        <!-- <style>
+          ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+          }
+          
+          li {
+            display: inline;
+          }
+          </style> -->
+
+    </head>
+
+    
+
+    <body>
+
+      <ul>
+        <li><a href="home.html">Home</a></li>
+              <li><a href="pieChart.html">PieChart</a></li>
+              <li><a href="circleDiagram.html">CircleDiagram</a></li>
+              <li><a href="worldMap.html">GlobeGraph</a></li>
+              <li><a href="usa.html">CurveGraph</a></li>
+              <li><a href="transmissionLifecycle.html">TransmissionLifeCycle</a></li>
+              <li><a href="coronavirusFamily.html">CoronavirusFamily</a></li>
+              <li><a href="lollipopDiagram.html">LollipopDiagram</a></li>
+              <li><a href="circularBarplot.html">CircularBarplot</a></li>
+      </ul>
+
+    <p>Data Source : <a href="https://www.who.int/">World Health Organization</a></p>
+
+    <br><br><p>The various stages of COVID19 transmission</p>
+
+    
+    <script>
+
+        
+        var canvas = d3.select("body")
+                    .append("svg")
+                    .attr("width",5000)
+                    .attr("height",5000)
+                    .append("g")
+                    .attr("transform","translate(100,100)")
+                    ;
+
+                    d3.csv("./data/transmissionLifecycle.csv",function(data){
+                          dataViz(data);
+                    });
+
+             
+
+   
+
+function dataViz(data){
+ //console.log(data);
+ 
+ var initialArray = d3.values(data);
+    var posArray=[];
+    var nameArray=[];
+    var valueArray=[];
+    var maxValue;
+    var minValue;
+    var a=0;
+    var b=0;  
+    var c=0;
+
+   
+    for(var i=0;i<initialArray.length;i++)
+     {
+
+         var subArray = Object.values(initialArray[i]);
+
+         
+         for(var j=0;j<subArray.length;j++)
+         {
+             
+             if(j==0)
+             {
+               posArray[a] = subArray[j];
+               a++;   
+             }
+
+             if(j==1)
+             {
+               nameArray[b] = subArray[j];
+               b++; 
+             }
+
+             if(j==2)
+             {
+               valueArray[c] = subArray[j];
+               c++; 
+             }
+         }
+         
+     }
+
+     console.log("hiiiii"+nameArray);
+     var cArray = nameArray;
+     
+
+     for(var i=0;i<valueArray.length;i++)
+                  {
+                    valueArray[i] = Math.round(valueArray[i] / 5000);
+                  }
+        console.log(valueArray);
+       var maxminValue = d3.extent(valueArray);
+         console.log(d3.extent(valueArray));
+
+        maxValue = maxminValue[0];
+        minValue = maxminValue[1];
+        console.log(maxValue,minValue+1);
+
+        var colorScale = d3.scale.linear()
+                                .domain([minValue,maxValue])
+                                .range(["green","blue"]);
+
+        /* var radiusScale = d3.scale.linear()
+                                   .domain(minValue,maxValue)    
+                                   .range(4,10);      */    
+                                   
+        var clickFunction = function(d,i)
+        {
+         
+          alert("Country Name is: "+nameArray[i]+"\n Position/Rank is: "+posArray[i]+"\n Population is: "+valueArray[i]);
+
+        }                           
+                              
+      
+        var labels = canvas.selectAll("text")
+                      .data(nameArray)    
+                      .enter()
+                     .append("text")   
+                     .attr("fill","black")
+                     .attr("x",function(d,i){return 138*i;})
+                     .attr("y",10)
+                      .text(function(d){return d;}) 
+                ;                                           
+
+        
+        var circle = d3.select("svg")  
+                            .append("circle")
+                            .attr("r",25)
+                            .style("fill","green")
+                            .attr("transform","translate(120,50)")
+                            ;
+              
+        d3.selectAll("circle")
+                            .transition().delay(1000).style("fill","blue")
+                            .transition().delay(2000).style("fill","yellow").attr("transform","translate(260,50)").duration(2000)
+                            .transition().delay(4000).style("fill","orange").attr("transform","translate(400,50)").duration(2000)
+                            .transition().delay(8000).style("fill","red").attr("transform","translate(530,50)").duration(2000)
+                            //.transition().delay(1000).attr("r",0).duration(2000).transition().delay(4500)
+                            ;
+
+        
+
+    }            
+
+    
+    </script>
+
+    </body>
+</html>
+
+
+
+
+
